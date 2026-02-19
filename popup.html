@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusFlow Pro</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #1a1a26;
+      --bg-card-hover: #22222f;
+      --accent: #ff6b35;
+      --accent-glow: rgba(255, 107, 53, 0.3);
+      --accent-soft: rgba(255, 107, 53, 0.1);
+      --green: #22c55e;
+      --green-glow: rgba(34, 197, 94, 0.3);
+      --blue: #3b82f6;
+      --blue-glow: rgba(59, 130, 246, 0.3);
+      --purple: #a855f7;
+      --text-primary: #f0f0f5;
+      --text-secondary: #8888a0;
+      --text-muted: #55556a;
+      --border: rgba(255, 255, 255, 0.06);
+      --radius: 14px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 380px;
+      min-height: 520px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(255, 107, 53, 0.05) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), #ff8f65);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span {
+      color: var(--accent);
+    }
+
+    .settings-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .settings-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    /* Timer Display */
+    .timer-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .timer-ring-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 16px;
+    }
+
+    .timer-ring {
+      width: 200px;
+      height: 200px;
+      transform: rotate(-90deg);
+    }
+
+    .timer-ring-bg {
+      fill: none;
+      stroke: var(--bg-card);
+      stroke-width: 6;
+    }
+
+    .timer-ring-progress {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 565.48;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+      filter: drop-shadow(0 0 8px var(--accent-glow));
+    }
+
+    .timer-ring-progress.break-mode {
+      stroke: var(--green);
+      filter: drop-shadow(0 0 8px var(--green-glow));
+    }
+
+    .timer-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .timer-time {
+      font-family: 'Space Mono', monospace;
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+
+    .timer-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+
+    /* Mode Tabs */
+    .mode-tabs {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+
+    .mode-tab {
+      flex: 1;
+      padding: 10px 8px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .mode-tab.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .mode-tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      padding: 14px 40px;
+      background: linear-gradient(135deg, var(--accent), #ff8f65);
+      color: white;
+      font-size: 15px;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 25px var(--accent-glow);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary.running {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-secondary {
+      padding: 14px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    /* Session Counter */
+    .sessions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .session-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--text-muted);
+      transition: all 0.3s ease;
+    }
+
+    .session-dot.completed {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .session-dot.current {
+      border-color: var(--accent);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+      50% { box-shadow: 0 0 0 6px transparent; }
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+      background: var(--bg-card-hover);
+    }
+
+    .stat-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+
+    /* Blocked Sites */
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .blocked-sites {
+      margin-bottom: 20px;
+    }
+
+    .site-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .site-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .site-tag .remove {
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .site-tag .remove:hover {
+      color: #ef4444;
+    }
+
+    .add-site {
+      display: flex;
+      gap: 8px;
+    }
+
+    .add-site input {
+      flex: 1;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .add-site input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .add-site input:focus {
+      border-color: var(--accent);
+    }
+
+    .add-site button {
+      padding: 10px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--accent);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-site button:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    /* Premium Banner */
+    .premium-banner {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1));
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      margin-bottom: 12px;
+    }
+
+    .premium-banner:hover {
+      border-color: rgba(168, 85, 247, 0.4);
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(59, 130, 246, 0.15));
+    }
+
+    .premium-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .premium-text h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .premium-text p {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .premium-price {
+      margin-left: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--purple);
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      display: none;
+      padding: 20px;
+    }
+
+    .settings-panel.visible {
+      display: block;
+    }
+
+    .settings-back {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      padding: 0;
+    }
+
+    .settings-back:hover {
+      color: var(--text-primary);
+    }
+
+    .setting-group {
+      margin-bottom: 20px;
+    }
+
+    .setting-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+    }
+
+    .setting-row span {
+      font-size: 14px;
+    }
+
+    .setting-row input[type="number"] {
+      width: 60px;
+      padding: 6px 10px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      text-align: center;
+      outline: none;
+    }
+
+    .setting-row input[type="number"]:focus {
+      border-color: var(--accent);
+    }
+
+    /* Toggle Switch */
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      transition: 0.3s;
+      border: 1px solid var(--border);
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+      background: white;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer p {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container > * {
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .container > *:nth-child(1) { animation-delay: 0.0s; }
+    .container > *:nth-child(2) { animation-delay: 0.05s; }
+    .container > *:nth-child(3) { animation-delay: 0.1s; }
+    .container > *:nth-child(4) { animation-delay: 0.15s; }
+    .container > *:nth-child(5) { animation-delay: 0.2s; }
+    .container > *:nth-child(6) { animation-delay: 0.25s; }
+    .container > *:nth-child(7) { animation-delay: 0.3s; }
+    .container > *:nth-child(8) { animation-delay: 0.35s; }
+  </style>
+</head>
+<body>
+
+  <!-- Main View -->
+  <div class="container" id="mainView">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">🔥</div>
+        <div class="logo-text">Focus<span>Flow</span></div>
+      </div>
+      <button class="settings-btn" id="openSettings" title="Settings">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="9" r="3"/><path d="M9 1v2m0 12v2M1 9h2m12 0h2m-2.5-5.5-1.4 1.4M4.9 13.1 3.5 14.5m0-11L4.9 4.9m8.2 8.2 1.4 1.4"/></svg>
+      </button>
+    </div>
+
+    <!-- Mode Tabs -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="focus" data-minutes="25">Focus</button>
+      <button class="mode-tab" data-mode="short" data-minutes="5">Short Break</button>
+      <button class="mode-tab" data-mode="long" data-minutes="15">Long Break</button>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-section">
+      <div class="timer-ring-container">
+        <svg class="timer-ring" viewBox="0 0 200 200">
+          <circle class="timer-ring-bg" cx="100" cy="100" r="90"/>
+          <circle class="timer-ring-progress" id="timerProgress" cx="100" cy="100" r="90"/>
+        </svg>
+        <div class="timer-display">
+          <div class="timer-time" id="timerDisplay">25:00</div>
+          <div class="timer-label" id="timerLabel">Focus Time</div>
+        </div>
+      </div>
+
+      <!-- Session Dots -->
+      <div class="sessions" id="sessionDots">
+        <div class="session-dot current" data-session="1"></div>
+        <div class="session-dot" data-session="2"></div>
+        <div class="session-dot" data-session="3"></div>
+        <div class="session-dot" data-session="4"></div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn btn-secondary" id="resetBtn" title="Reset">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 4v5h5M15 12V7h-5"/><path d="M13.5 5A7 7 0 0 0 2.5 4L1 5.5m14 5-1.5 1.5A7 7 0 0 1 2.5 11"/></svg>
+      </button>
+      <button class="btn btn-primary" id="startBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        Start
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="todaySessions">0</div>
+        <div class="stat-label">Sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="todayMinutes">0</div>
+        <div class="stat-label">Minutes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="streak">0</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+    </div>
+
+    <!-- Blocked Sites -->
+    <div class="blocked-sites">
+      <div class="section-title">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="5" width="12" height="8" rx="2"/><path d="M4 5V3a3 3 0 0 1 6 0v2"/></svg>
+        Block During Focus
+      </div>
+      <div class="site-list" id="siteList"></div>
+      <div class="add-site">
+        <input type="text" id="siteInput" placeholder="e.g. youtube.com" />
+        <button id="addSiteBtn">+ Add</button>
+      </div>
+    </div>
+
+    <!-- Premium Banner -->
+    <div class="premium-banner" id="premiumBanner">
+      <div class="premium-icon">⚡</div>
+      <div class="premium-text">
+        <h4>Upgrade to Pro</h4>
+        <p>Unlimited blocking, detailed stats & themes</p>
+      </div>
+      <div class="premium-price">$3/mo</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>FocusFlow Pro v1.0 — Built with 🔥</p>
+    </div>
+  </div>
+
+  <!-- Settings View -->
+  <div class="settings-panel" id="settingsView">
+    <button class="settings-back" id="closeSettings">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2L4 8l6 6"/></svg>
+      Back
+    </button>
+
+    <div class="setting-group">
+      <label>Timer Duration (minutes)</label>
+      <div class="setting-row">
+        <span>Focus</span>
+        <input type="number" id="setFocus" value="25" min="1" max="90" />
+      </div>
+      <div class="setting-row">
+        <span>Short Break</span>
+        <input type="number" id="setShort" value="5" min="1" max="30" />
+      </div>
+      <div class="setting-row">
+        <span>Long Break</span>
+        <input type="number" id="setLong" value="15" min="1" max="60" />
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label>Preferences</label>
+      <div class="setting-row">
+        <span>Sound Alerts</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggleSound" checked />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <span>Notifications</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggleNotif" checked />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <span>Auto-start Breaks</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggleAutoBreak" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
