@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "FocusFlow Pro — Pomodoro & Focus Timer",
+  "short_name": "FocusFlow",
+  "version": "1.0.0",
+  "description": "Beautiful Pomodoro timer with distraction blocking, ambient sounds, and productivity stats. Stay focused, get more done.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
