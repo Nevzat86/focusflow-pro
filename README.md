@@ -21,9 +21,6 @@ A beautiful, premium Chrome Extension for staying focused and productive.
 
 ## Installation
 
-### From Chrome Web Store
-Coming soon!
-
 ### Manual Install (Developer Mode)
 1. Download or clone this repository
 2. Open `chrome://extensions/` in Chrome
