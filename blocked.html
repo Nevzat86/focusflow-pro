@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Blocked — FocusFlow Pro</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a0f;
+      color: #f0f0f5;
+      font-family: 'DM Sans', -apple-system, sans-serif;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 30%, rgba(255,107,53,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .card {
+      text-align: center;
+      max-width: 480px;
+      padding: 48px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,107,53,0.05));
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      border: 1px solid rgba(255,107,53,0.2);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    h1 span { color: #ff6b35; }
+
+    .subtitle {
+      font-size: 16px;
+      color: #8888a0;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .timer {
+      font-family: 'Space Mono', monospace;
+      font-size: 48px;
+      font-weight: 700;
+      color: #ff6b35;
+      margin-bottom: 8px;
+      letter-spacing: 3px;
+      text-shadow: 0 0 30px rgba(255,107,53,0.3);
+    }
+
+    .timer-label {
+      font-size: 12px;
+      color: #55556a;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 32px;
+    }
+
+    .quote {
+      font-size: 14px;
+      color: #8888a0;
+      font-style: italic;
+      line-height: 1.6;
+      padding: 20px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .quote strong {
+      display: block;
+      margin-top: 8px;
+      font-style: normal;
+      color: #55556a;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🛡️</div>
+    <h1>Stay <span>Focused</span></h1>
+    <p class="subtitle">
+      This site is blocked during your focus session.<br>
+      You're doing great — keep going!
+    </p>
+    <div class="timer" id="timer">--:--</div>
+    <div class="timer-label">remaining in session</div>
+    <div class="quote" id="quote"></div>
+  </div>
+
+  <script>
+    const quotes = [
+      { text: 'The secret of getting ahead is getting started.', author: 'Mark Twain' },
+      { text: 'Focus on being productive instead of busy.', author: 'Tim Ferriss' },
+      { text: 'It is during our darkest moments that we must focus to see the light.', author: 'Aristotle' },
+      { text: 'Concentrate all your thoughts upon the work at hand.', author: 'Alexander Graham Bell' },
+      { text: 'The successful warrior is the average man, with laser-like focus.', author: 'Bruce Lee' },
+      { text: 'Do what you can, with what you have, where you are.', author: 'Theodore Roosevelt' },
+      { text: 'You don\'t have to be great to start, but you have to start to be great.', author: 'Zig Ziglar' },
+    ];
+
+    // Show random quote
+    const q = quotes[Math.floor(Math.random() * quotes.length)];
+    document.getElementById('quote').innerHTML =
+      `"${q.text}" <strong>— ${q.author}</strong>`;
+
+    // Show remaining time
+    function updateTimer() {
+      try {
+        chrome.runtime.sendMessage({ action: 'getState' }, (response) => {
+          if (chrome.runtime.lastError || !response) return;
+
+          if (!response.isRunning) {
+            document.getElementById('timer').textContent = 'Session ended';
+            document.querySelector('.timer-label').textContent = 'you can close this tab';
+            return;
+          }
+
+          if (response.endTime) {
+            const remaining = Math.max(0, Math.floor((response.endTime - Date.now()) / 1000));
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            document.getElementById('timer').textContent =
+              `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+          }
+        });
+      } catch (e) {
+        // Not in extension context
+      }
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>
