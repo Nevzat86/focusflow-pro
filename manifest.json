@@ -2,14 +2,13 @@
   "manifest_version": 3,
   "name": "FocusFlow Pro — Pomodoro & Focus Timer",
   "short_name": "FocusFlow",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Stay focused with a beautiful Pomodoro timer, distraction-blocking, and productivity stats. Block distracting websites during focus sessions, track your daily progress, and build a consistent focus habit.",
   "permissions": [
     "storage",
     "alarms",
     "notifications",
-    "declarativeNetRequest",
-    "declarativeNetRequestFeedback"
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "<all_urls>"
