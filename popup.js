@@ -393,6 +393,11 @@ class FocusFlowApp {
     // Clean up URL
     site = site.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
 
+    // Basic domain validation
+    if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z]{2,})+$/.test(site)) {
+      return;
+    }
+
     if (site && !this.state.blockedSites.includes(site)) {
       // Free tier limit: 5 sites
       if (this.state.blockedSites.length >= 5) {
@@ -448,7 +453,7 @@ class FocusFlowApp {
       const yesterday = new Date(Date.now() - 86400000).toDateString();
       if (this.state.stats.lastActiveDate === yesterday) {
         this.state.stats.streak++;
-      } else if (this.state.stats.lastActiveDate !== today) {
+      } else {
         this.state.stats.streak = 1;
       }
       this.state.stats.lastActiveDate = today;

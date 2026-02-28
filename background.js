@@ -109,9 +109,8 @@ async function enableBlocking(sites) {
     await chrome.declarativeNetRequest.updateDynamicRules({
       addRules: rules
     });
-    console.log('[FocusFlow] Blocking enabled for:', sites);
   } catch (e) {
-    console.error('[FocusFlow] Failed to enable blocking:', e);
+    // Silently fail — rules may exceed limits
   }
 }
 
@@ -204,8 +203,11 @@ chrome.runtime.onInstalled.addListener((details) => {
 // ============================
 
 chrome.runtime.onStartup.addListener(() => {
-  // Clear blocking rules on browser start (in case they weren't cleaned up)
+  // Clear blocking rules and fully reset timer state on browser start
   disableBlocking();
   timerState.isRunning = false;
+  timerState.timeLeft = 0;
+  timerState.endTime = null;
+  timerState.blockedSites = [];
   updateBadge('', '#ff6b35');
 });
